@@ -140,6 +140,11 @@ async function loadBooks(){
 
 async function addBook(){
 
+  if(!currentUser){
+    alert("請先登入");
+    return;
+  }
+
   const book = {
     id: Date.now(),
     uid: currentUser.uid,
