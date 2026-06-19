@@ -127,12 +127,12 @@ async function addBook(){
   const book = {
     id: Date.now(),
     uid: currentUser.uid,
-    title: title.value || "",
-    author: author.value || "",
-    tags: tags.value || "",
-    status: status.value || "閱讀中",
-    rating: rating.value || "",
-    note: note.value || ""
+    title: document.getElementById("title").value || "",
+    author: document.getElementById("author").value || "",
+    tags: document.getElementById("tags").value || "",
+    status: document.getElementById("status").value || "閱讀中",
+    rating: document.getElementById("rating").value || "",
+    note: document.getElementById("note").value || ""
   };
 
   await db.collection("books").doc(String(book.id)).set(book);
