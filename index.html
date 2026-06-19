@@ -140,11 +140,6 @@ async function loadBooks(){
 
 async function addBook(){
 
-  if(!currentUser){
-    alert("請先登入 Google");
-    return;
-  }
-
   const book = {
     id: Date.now(),
     uid: currentUser.uid,
@@ -191,23 +186,6 @@ function render(){
   });
 }
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-<script>
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC1-LEHAu6u3_hZI3ITetepkM_ylaOG4wo",
-  authDomain: "novel-library-39143.firebaseapp.com",
-  projectId: "novel-library-39143",
-  storageBucket: "novel-library-39143.firebasestorage.app",
-  messagingSenderId: "957574965767",
-  appId: "1:957574965767:web:30dd338809676e088b18a2"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-  </script>
 </body>
 </html>
