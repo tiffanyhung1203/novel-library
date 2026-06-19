@@ -23,10 +23,7 @@ input, select, textarea {
   border-radius:8px;
 }
 
-button {
-  padding:6px;
-  margin-top:5px;
-}
+button { padding:6px; margin-top:5px; }
 
 #userArea {
   position:absolute;
@@ -75,32 +72,34 @@ button {
 
 </div>
 
-<!-- Firebase compat（重點：不要用 modular） -->
+<!-- Firebase compat（注意：不是 import） -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
 <script>
-/* ================= Firebase 初始化 ================= */
+
+/* ================= Firebase config（你給的 key） ================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyC1-LEHAu6u3hZI3ITetepkM_ylaOG4wo",
+  apiKey: "AIzaSyC1-LEHAu6u3_hZI3ITetepkM_ylaOG4wo",
   authDomain: "novel-library-39143.firebaseapp.com",
   projectId: "novel-library-39143",
-  storageBucket: "novel-library-39143.appspot.com",
+  storageBucket: "novel-library-39143.firebasestorage.app",
   messagingSenderId: "957574965767",
   appId: "1:957574965767:web:30dd338809676e088b18a2"
 };
 
+/* ✅ 正確初始化（重點） */
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-/* ================= 全域狀態 ================= */
+/* ================= 狀態 ================= */
 let books = [];
 let currentUser = null;
 
-/* ================= 中文狀態顯示 ================= */
+/* 中文對照 */
 const statusMap = {
   want: "待看",
   reading: "看一半",
@@ -119,7 +118,7 @@ function logout(){
   auth.signOut();
 }
 
-/* ================= 登入狀態監聽 ================= */
+/* ================= 登入監聽 ================= */
 auth.onAuthStateChanged(user => {
   currentUser = user;
 
@@ -133,7 +132,7 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-/* ================= 讀取資料 ================= */
+/* ================= 讀取 ================= */
 async function loadBooks(){
   if(!currentUser) return;
 
@@ -149,7 +148,7 @@ async function loadBooks(){
 async function addBook(){
 
   if(!currentUser){
-    alert("請先登入 Google");
+    alert("請先登入");
     return;
   }
 
@@ -179,7 +178,7 @@ async function del(id){
   loadBooks();
 }
 
-/* ================= 畫面渲染 ================= */
+/* ================= render ================= */
 function render(){
   const list = document.getElementById("list");
   list.innerHTML = "";
@@ -200,6 +199,7 @@ function render(){
     `;
   });
 }
+
 </script>
 
 </body>
