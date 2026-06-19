@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的小說庫</title>
+<style>
+body { font-family: sans-serif; margin: 0; background:#f5f5f5; }
+header { padding: 10px; background:#333; color:white; text-align:center; }
+.container { padding: 10px; max-width: 900px; margin:auto; }
+
+input, select, textarea {
+  width: 100%; padding: 8px; margin: 5px 0;
+}
+
+.card {
+  background:white; padding:10px; margin:10px 0; border-radius:8px;
+}
+
+.row { display:flex; gap:10px; }
+.row > div { flex:1; }
+
+button {
+  padding:8px; margin-top:5px;
+}
+
+.small { font-size:12px; color:#666; }
+.tag { font-size:12px; background:#ddd; padding:2px 6px; border-radius:5px; margin-right:5px; }
+</style>
+</head>
+
+<body>
+
+<header>📚 我的小說庫</header>
+
+<div class="container">
+
+<h3>新增小說</h3>
+
+<input id="title" placeholder="書名">
+<input id="author" placeholder="作者">
+<input id="tags" placeholder="標籤（用逗號分隔）">
+
+<div class="row">
+  <select id="status">
+    <option>閱讀中</option>
+    <option>已完結</option>
+    <option>棄坑</option>
+    <option>想看</option>
+  </select>
+
+  <input id="rating" type="number" placeholder="評分(1-10)">
+</div>
+
+<textarea id="note" placeholder="心得"></textarea>
+
+<button onclick="addBook()">新增</button>
+
+<hr>
+
+<input id="search" placeholder="搜尋小說..." oninput="render()">
+
+<div id="list"></div>
+
+</div>
+
+<script>
+let books = JSON.parse(localStorage.getItem("books") || "[]");
+
+function save(){
+  localStorage.setItem("books", JSON.stringify(books));
+}
+
+function addBook(){
+  const book = {
+    id: Date.now(),
+    title: title.value,
+    author: author.value,
+    tags: tags.value,
+    status: status.value,
+    rating: rating.value,
+    note: note.value
+  };
+
+  books.unshift(book);
+  save();
+  render();
+}
+
+function del(id){
+  books = books.filter(b => b.id !== id);
+  save();
+  render();
+}
+
+function render(){
+  const q = search.value?.toLowerCase() || "";
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  books
+    .filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      b.tags.toLowerCase().includes(q) ||
+      b.author.toLowerCase().includes(q)
+    )
+    .forEach(b => {
+      list.innerHTML += `
+      <div class="card">
+        <b>${b.title}</b> (${b.status})<br>
+        <div class="small">${b.author || ""}</div>
+        <div>⭐ ${b.rating || "-"}</div>
+        <div>
+          ${b.tags ? b.tags.split(",").map(t => `<span class="tag">${t}</span>`).join("") : ""}
+        </div>
+        <p>${b.note || ""}</p>
+        <button onclick="del(${b.id})">刪除</button>
+      </div>
+      `;
+    });
+}
+
+render();
+</script>
+
+</body>
+</html>
