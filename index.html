@@ -11,7 +11,9 @@ header { background:#333; color:white; padding:10px; text-align:center; }
 .container { padding:10px; max-width:900px; margin:auto; }
 
 input, select, textarea {
-  width:100%; padding:8px; margin:5px 0;
+  width:100%;
+  padding:8px;
+  margin:5px 0;
 }
 
 .card {
@@ -21,21 +23,18 @@ input, select, textarea {
   border-radius:8px;
 }
 
-button { padding:6px; margin-top:5px; }
+button {
+  padding:6px;
+  margin-top:5px;
+}
 
 #userArea {
-  position: absolute;
+  position:absolute;
   top:10px;
   right:10px;
   color:white;
   font-size:12px;
 }
-
-/* 狀態顏色 */
-.status-want { color:#555; }
-.status-reading { color:#e6a800; }
-.status-done { color:green; }
-.status-dropped { color:red; }
 </style>
 </head>
 
@@ -76,16 +75,18 @@ button { padding:6px; margin-top:5px; }
 
 </div>
 
+<!-- Firebase compat（重點：不要用 modular） -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
 <script>
+/* ================= Firebase 初始化 ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyC1-LEHAu6u3hZI3ITetepkM_ylaOG4wo",
   authDomain: "novel-library-39143.firebaseapp.com",
   projectId: "novel-library-39143",
-  storageBucket: "novel-library-39143.firebasestorage.app",
+  storageBucket: "novel-library-39143.appspot.com",
   messagingSenderId: "957574965767",
   appId: "1:957574965767:web:30dd338809676e088b18a2"
 };
@@ -95,10 +96,11 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+/* ================= 全域狀態 ================= */
 let books = [];
 let currentUser = null;
 
-/* 狀態中文對照 */
+/* ================= 中文狀態顯示 ================= */
 const statusMap = {
   want: "待看",
   reading: "看一半",
@@ -108,6 +110,7 @@ const statusMap = {
   finished: "已完結"
 };
 
+/* ================= 登入 ================= */
 function login(){
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
 }
@@ -116,6 +119,7 @@ function logout(){
   auth.signOut();
 }
 
+/* ================= 登入狀態監聽 ================= */
 auth.onAuthStateChanged(user => {
   currentUser = user;
 
@@ -129,7 +133,10 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+/* ================= 讀取資料 ================= */
 async function loadBooks(){
+  if(!currentUser) return;
+
   const snap = await db.collection("books")
     .where("uid","==",currentUser.uid)
     .get();
@@ -138,7 +145,13 @@ async function loadBooks(){
   render();
 }
 
+/* ================= 新增 ================= */
 async function addBook(){
+
+  if(!currentUser){
+    alert("請先登入 Google");
+    return;
+  }
 
   const book = {
     id: Date.now(),
@@ -160,11 +173,13 @@ async function addBook(){
   loadBooks();
 }
 
+/* ================= 刪除 ================= */
 async function del(id){
   await db.collection("books").doc(String(id)).delete();
   loadBooks();
 }
 
+/* ================= 畫面渲染 ================= */
 function render(){
   const list = document.getElementById("list");
   list.innerHTML = "";
