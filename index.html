@@ -15,37 +15,38 @@ input, select, textarea {
 }
 
 .card {
-  background:white; padding:10px; margin:10px 0; border-radius:8px;
+  background:white;
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
 }
 
-button { padding:8px; margin-top:5px; }
-
-.small { font-size:12px; color:#666; }
-
-.tag {
-  font-size:12px; background:#ddd; padding:2px 6px; border-radius:5px; margin-right:5px;
-}
+button { padding:6px; margin-top:5px; }
 
 #userArea {
   position: absolute;
   top:10px;
   right:10px;
   color:white;
+  font-size:12px;
 }
+
+/* 狀態顏色 */
+.status-want { color:#555; }
+.status-reading { color:#e6a800; }
+.status-done { color:green; }
+.status-dropped { color:red; }
 </style>
 </head>
 
 <body>
 
-<header>
-📚 我的小說庫
-</header>
-
+<header>📚 我的小說庫</header>
 <div id="userArea"></div>
 
 <div class="container">
 
-<button onclick="login()">🔐 Google 登入</button>
+<button onclick="login()">Google 登入</button>
 <button onclick="logout()">登出</button>
 
 <h3>新增小說</h3>
@@ -54,11 +55,16 @@ button { padding:8px; margin-top:5px; }
 <input id="author" placeholder="作者">
 <input id="tags" placeholder="標籤">
 
-<select id="status">
-  <option>閱讀中</option>
-  <option>已完結</option>
-  <option>棄坑</option>
-  <option>想看</option>
+<select id="userStatus">
+  <option value="want">待看</option>
+  <option value="reading">看一半</option>
+  <option value="done">看完</option>
+  <option value="dropped">棄坑</option>
+</select>
+
+<select id="bookStatus">
+  <option value="ongoing">未完結</option>
+  <option value="finished">已完結</option>
 </select>
 
 <input id="rating" placeholder="評分">
@@ -76,7 +82,7 @@ button { padding:8px; margin-top:5px; }
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyC1-LEHAu6u3_hZI3ITetepkM_ylaOG4wo",
+  apiKey: "AIzaSyC1-LEHAu6u3hZI3ITetepkM_ylaOG4wo",
   authDomain: "novel-library-39143.firebaseapp.com",
   projectId: "novel-library-39143",
   storageBucket: "novel-library-39143.firebasestorage.app",
@@ -91,6 +97,16 @@ const db = firebase.firestore();
 
 let books = [];
 let currentUser = null;
+
+/* 狀態中文對照 */
+const statusMap = {
+  want: "待看",
+  reading: "看一半",
+  done: "看完",
+  dropped: "棄坑",
+  ongoing: "未完結",
+  finished: "已完結"
+};
 
 function login(){
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
@@ -127,10 +143,14 @@ async function addBook(){
   const book = {
     id: Date.now(),
     uid: currentUser.uid,
+
     title: document.getElementById("title").value || "",
     author: document.getElementById("author").value || "",
     tags: document.getElementById("tags").value || "",
-    status: document.getElementById("status").value || "閱讀中",
+
+    userStatus: document.getElementById("userStatus").value || "want",
+    bookStatus: document.getElementById("bookStatus").value || "ongoing",
+
     rating: document.getElementById("rating").value || "",
     note: document.getElementById("note").value || ""
   };
@@ -140,25 +160,30 @@ async function addBook(){
   loadBooks();
 }
 
+async function del(id){
+  await db.collection("books").doc(String(id)).delete();
+  loadBooks();
+}
+
 function render(){
   const list = document.getElementById("list");
   list.innerHTML = "";
 
   books.forEach(b => {
+
     list.innerHTML += `
       <div class="card">
-        <b>${b.title}</b><br>
-        ${b.author}<br>
-        ${b.status}<br>
+
+        <b>${b.title}</b> ｜ ${b.author}<br>
+
+        ${statusMap[b.userStatus]} ｜ ${statusMap[b.bookStatus]} ｜ ⭐ ${b.rating || "-"}
+
+        <br>
         <button onclick="del(${b.id})">刪除</button>
+
       </div>
     `;
   });
-}
-
-async function del(id){
-  await db.collection("books").doc(String(id)).delete();
-  loadBooks();
 }
 </script>
 
